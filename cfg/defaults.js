@@ -16,7 +16,7 @@ function getDefaultModules() {
       },
       {
         test: /\.sass/,
-        loader: 'style-loader!css-loader!postcss-loader!sass-loader?outputStyle=expanded&indentedSyntax'
+        loader: 'style-loader!css-loader!postcss-loader!sass-loader?outputStyle=expanded'
       },
       {
         test: /\.scss/,
@@ -25,6 +25,10 @@ function getDefaultModules() {
       {
         test: /\.less/,
         loader: 'style-loader!css-loader!postcss-loader!less-loader'
+      },
+      {
+        test: /\.json/,
+        loader: 'json-loader'
       },
       {
         test: /\.styl/,
