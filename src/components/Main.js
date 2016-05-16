@@ -2,6 +2,7 @@ require('normalize.css/normalize.css');
 require('styles/App.scss');
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 var imageDatas = require('../data/imageDatas.json');
 
@@ -16,12 +17,12 @@ imageDatas = (function getImageURL (imageDatasArr) {
     return imageDatasArr;
 })(imageDatas);
 
-function getRangeRandow (low, high) {
-    return Math.ceil(Math.random * (high - low) + low);
+function getRangeRandom (low, high) {
+    return Math.ceil(Math.random() * (high - low) + low);
 }
 
 var ImgFigure = React.createClass({
-    render() {
+    render: function () {
         var styleObj = {};
 
         if (this.props.arrange.pos) {
@@ -39,44 +40,47 @@ var ImgFigure = React.createClass({
     }
 });
 
-class AppComponent extends React.Component {
+var AppComponent = React.createClass({
     Constant: {
         centerPos: {
             left: 0,
             right: 0
         },
-        hPosRange: {
+        hPosRange: {  // 水平方向的取值范围
             leftSecX: [0, 0],
             rightSecX: [0, 0],
             y: [0, 0]
         },
-        vPosRange: {
+        vPosRange: {  // 垂直方向的取值范围
             x: [0, 0],
             topY: [0, 0]
         }
-    }
+    },
 
-    getInitialState() {
+    getInitialState: function () {
         return {
             imgsArrangeArr: [
-                {
+                /*{
                     pos: {
                         left: '0',
-                        right: '0'
-                    }
-                }
+                        top: '0'
+                    },
+                    rotate: 0,    // 旋转角度
+                    isInverse: false,    // 图片正反面
+                    isCenter: false,    // 图片是否居中
+                }*/
             ]
-        }
-    }
+        };
+    },
 
-    componentDidMount() {
-        var stageDOM = React.findDOMNode(this.refs.stage),
+    componentDidMount: function () {
+        var stageDOM = ReactDOM.findDOMNode(this.refs.stage),
             stageW = stageDOM.scrollWidth,
             stageH = stageDOM.scrollHeight,
             halfStageW = Math.ceil(stageW / 2),
             halfStageH = Math.ceil(stageH / 2);
 
-        var imgFigureDOM = React.findDOMNode(this.refs.imgFigure0),
+        var imgFigureDOM = ReactDOM.findDOMNode(this.refs.imgFigure0),
             imgW = imgFigureDOM.scrollWidth,
             imgH = imgFigureDOM.scrollHeight,
             halfImgW = Math.ceil(imgW / 2),
@@ -85,31 +89,31 @@ class AppComponent extends React.Component {
         this.Constant.centerPos = {
             left: halfStageW - halfImgW,
             top: halfStageH - halfImgH
-        }
+        };
 
         this.Constant.hPosRange.leftSecX[0] = -halfImgW;
-        this.Constant.hPosRange.leftSecX[1] = halfStageW - halfImg * 3;
-        this.Constant.hPosRange.rightSecx[0] = halfStageW + halfImgW;
-        this.Constant.hPosRange.rightSecx[1] = stageW - halfImgW;
+        this.Constant.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
+        this.Constant.hPosRange.rightSecX[0] = halfStageW + halfImgW;
+        this.Constant.hPosRange.rightSecX[1] = stageW - halfImgW;
         this.Constant.hPosRange.y[0] = -halfImgH;
         this.Constant.hPosRange.y[1] = stageH - halfImgH;
 
         this.Constant.vPosRange.topY[0] = -halfImgH;
-        this.Constant.vPosRange.topY[1] = halfImgH - halfImgH * 3;
+        this.Constant.vPosRange.topY[1] = halfStageH - halfImgH * 3;
         this.Constant.vPosRange.x[0] = halfStageW - imgW;
         this.Constant.vPosRange.x[1] = halfStageW;
 
         this.rearrange(0);
-    }
+    },
 
-    rearrange(centerIndex) {
-        var imgsArrayArr = this.stage.imgsArrangeArr,
+    rearrange: function (centerIndex) {
+        var imgsArrangeArr = this.state.imgsArrangeArr,
             Constant = this.Constant,
             centerPos = Constant.centerPos,
             hPosRange = Constant.hPosRange,
             vPosRange = Constant.vPosRange,
             hPosRangeLeftSecX = hPosRange.leftSecX,
-            hPosRangeRightSecx = hPosRange.rightSecX,
+            hPosRangeRightSecX = hPosRange.rightSecX,
             hPosRangeY = hPosRange.y,
             vPosRangeTopY = vPosRange.topY,
             vPosRangeX = vPosRange.x,
@@ -132,13 +136,13 @@ class AppComponent extends React.Component {
                 }
             });
 
-            for (var i = 0, j = imgsArrangeArr.length, k = j /2; i < j; i++) {
+            for (var i = 0, j = imgsArrangeArr.length, k = j / 2; i < j; i++) {
                 var hPosRangeLORX = null;
 
                 if (i < k) {
                     hPosRangeLORX = hPosRangeLeftSecX;
                 } else {
-                    hPosRangeLORX = hPosRangeRightSecx;
+                    hPosRangeLORX = hPosRangeRightSecX;
                 }
 
                 imgsArrangeArr[i].pos = {
@@ -156,40 +160,41 @@ class AppComponent extends React.Component {
             this.setState({
                 imgsArrangeArr: imgsArrangeArr
             });
-    }
+    },
 
-    render() {
+    render: function() {
+
         var controllerUnits = [],
             imgFigures = [];
 
         imageDatas.forEach(function (value, index) {
+
             if (!this.state.imgsArrangeArr[index]) {
-                this.stage.imgsArrangeArr[index] = {
+                this.state.imgsArrangeArr[index] = {
                     pos: {
                         left: 0,
                         top: 0
-                    }
-                }
+                    },
+                    rotate: 0,
+                    isInverse: false,
+                    isCenter: false
+                };
             }
 
-            imgFigures.push(<ImgFigure data={value} ref={'imgFigure' + index}
-                 arrange={this.state.imgsArrangeArr[index]}/>);
+            imgFigures.push(<ImgFigure key={index} data={value} ref={'imgFigure' + index} arrange={this.state.imgsArrangeArr[index]} />);
         }.bind(this));
 
         return (
-          <section className="stage" ref="stage">
-            <section className="img-sec">
-                {imgFigures}
+            <section className="stage" ref="stage">
+                <section className="img-sec">
+                    {imgFigures}
+                </section>
+                <nav className="controller-nav">
+                    {controllerUnits}
+                </nav>
             </section>
-            <nav className="controller-nav">
-                {controllerUnits}
-            </nav>
-          </section>
         );
     }
-}
-
-AppComponent.defaultProps = {
-};
+});
 
 export default AppComponent;
