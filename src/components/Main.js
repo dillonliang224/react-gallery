@@ -4,8 +4,10 @@ require('styles/App.scss');
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+// 获取图片
 var imageDatas = require('../data/imageDatas.json');
 
+// 对图片进行数据处理，获取图片地址信息
 imageDatas = (function getImageURL (imageDatasArr) {
     for (var i = 0, j = imageDatasArr.length; i < j; i++) {
         var singleImage = imageDatasArr[i];
@@ -17,12 +19,16 @@ imageDatas = (function getImageURL (imageDatasArr) {
     return imageDatasArr;
 })(imageDatas);
 
+// 获取指定规则内的两个数之间的随机数
 function getRangeRandom (low, high) {
     return Math.ceil(Math.random() * (high - low) + low);
 }
 
+// 创建每个图片组件
 var ImgFigure = React.createClass({
+    // 对图片点击处理函数
     handleClick: function (e) {
+        // 当图片被点击的时候，如果是中心图片就翻转，否则成为中心图片
         if (this.props.arrange.isCenter) {
             this.props.inverse();
         } else {
@@ -69,12 +75,15 @@ var ImgFigure = React.createClass({
     }
 });
 
+// 获取倾斜角度
 function get30DegRandom() {
     return ((Math.random() > 0.5 ? '' : '-') + Math.ceil(Math.random() * 30));
 };
 
+// 控制组件
 var ControllerUtil = React.createClass({
     handleClick: function (e) {
+        // 当图片被点击的时候，如果是中心图片就翻转，否则成为中心图片
         if (this.props.arrange.isCenter) {
             this.props.inverse();
         } else {
@@ -151,38 +160,57 @@ var AppComponent = React.createClass({
     },
 
     componentDidMount: function () {
+        // 获取真实DOM
         var stageDOM = ReactDOM.findDOMNode(this.refs.stage),
-            stageW = stageDOM.scrollWidth,
-            stageH = stageDOM.scrollHeight,
-            halfStageW = Math.ceil(stageW / 2),
-            halfStageH = Math.ceil(stageH / 2);
+            stageW = stageDOM.scrollWidth,  // 页面宽度
+            stageH = stageDOM.scrollHeight,  // 页面高度
+            halfStageW = Math.ceil(stageW / 2),  // 页面宽度的一半
+            halfStageH = Math.ceil(stageH / 2);  // 页面高度的一半
 
+        // 获取图片DOM
         var imgFigureDOM = ReactDOM.findDOMNode(this.refs.imgFigure0),
-            imgW = imgFigureDOM.scrollWidth,
-            imgH = imgFigureDOM.scrollHeight,
-            halfImgW = Math.ceil(imgW / 2),
-            halfImgH = Math.ceil(imgH / 2);
+            imgW = imgFigureDOM.scrollWidth,  // 图片宽
+            imgH = imgFigureDOM.scrollHeight,  // 图片高
+            halfImgW = Math.ceil(imgW / 2),  // 图片宽一半
+            halfImgH = Math.ceil(imgH / 2);  // 图片高一半
 
+        // 页面正中心
         this.Constant.centerPos = {
             left: halfStageW - halfImgW,
             top: halfStageH - halfImgH
         };
 
+        // 左右分区设置取值范围
+        // 左分区：最左边
         this.Constant.hPosRange.leftSecX[0] = -halfImgW;
+        // 左分区：最右边
         this.Constant.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
+        // 右分区：最左边
         this.Constant.hPosRange.rightSecX[0] = halfStageW + halfImgW;
+        // 右分区：最右边
         this.Constant.hPosRange.rightSecX[1] = stageW - halfImgW;
+        // 左右分区：最上边
         this.Constant.hPosRange.y[0] = -halfImgH;
+        // 左右分区：最下边
         this.Constant.hPosRange.y[1] = stageH - halfImgH;
 
+        // 上分区设置取值范围
+        // 上分区：最上边
         this.Constant.vPosRange.topY[0] = -halfImgH;
+        // 上分区：最下边
         this.Constant.vPosRange.topY[1] = halfStageH - halfImgH * 3;
+        // 上分区：最左边
         this.Constant.vPosRange.x[0] = halfStageW - imgW;
+        // 上分区：最右边
         this.Constant.vPosRange.x[1] = halfStageW;
 
         this.rearrange(0);
     },
 
+    /*
+    * 重新布局所有图片
+    * @param centerIndex 指定居中排布哪个图片
+    */
     rearrange: function (centerIndex) {
         var imgsArrangeArr = this.state.imgsArrangeArr,
             Constant = this.Constant,
@@ -196,11 +224,13 @@ var AppComponent = React.createClass({
             vPosRangeX = vPosRange.x,
 
             imgsArrangeTopArr = [],
-            topImgNum = Math.floor(Math.random() * 2),
+            topImgNum = Math.floor(Math.random() * 2),  // 取一个或者不取
             topImgSpliceIndex = 0,
 
+            // 从数组中截取一个
             imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
 
+            // 设置居中图片的状态
             imgsArrangeCenterArr[0] = {
                 pos: centerPos,
                 rotate: 0,
@@ -210,6 +240,7 @@ var AppComponent = React.createClass({
             topImgSpliceIndex = Math.ceil(Math.random() * (imgsArrangeArr.length - topImgNum));
             imgsArrangeTopArr = imgsArrangeArr.splice(topImgSpliceIndex, topImgNum);
 
+            // 布局位于上侧的图片
             imgsArrangeTopArr.forEach(function (value, index) {
                 imgsArrangeTopArr[index] = {
                     pos: {
@@ -221,6 +252,7 @@ var AppComponent = React.createClass({
                 }
             });
 
+            // 布局左右两侧的图片
             for (var i = 0, j = imgsArrangeArr.length, k = j / 2; i < j; i++) {
                 var hPosRangeLORX = null;
 
@@ -240,8 +272,7 @@ var AppComponent = React.createClass({
                 }
             }
 
-            //debugger;
-
+            // 把截取的图片添加回图片数组
             if (imgsArrangeTopArr && imgsArrangeTopArr[0]) {
                 imgsArrangeArr.splice(topImgSpliceIndex, 0, imgsArrangeTopArr[0]);
             }
